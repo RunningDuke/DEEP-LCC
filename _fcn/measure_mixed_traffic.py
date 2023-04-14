@@ -27,6 +27,7 @@ def measure_mixed_traffic (vel,pos,ID,v_star,s_star,type) :
         case 3:
             spacing = pos[:, 0:-1] - pos[:, 1:];
             y = np.vstack(((vel - v_star).transpose(), (spacing[:, pos_cav] - s_star).transpose()));
+    return y;
     
 
 # Testing
