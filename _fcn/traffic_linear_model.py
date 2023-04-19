@@ -53,13 +53,10 @@ def traffic_linear_model(ID, Ts, hdv_type, measure_type, v_star):
     A[0:2, 0:2] = P1
     for i in range(2, n_vehicle+1):
         if ID[i-1] == 0:
-            print("i", i)
             A[(2 * i - 1) - 1 : (2 * i) , (2 * i - 1) - 1 : (2 * i)]     = P1
             A[(2 * i - 1) - 1 : (2 * i) , (2 * i - 3) - 1 : (2 * i - 2)] = P2
         else:
-            print("i", i)
             A[(2 * i - 1) - 1 : (2 * i) , (2 * i - 1) - 1 : (2 * i)]     = S1
-            print("A[]", A[(2 * i - 1) - 1 : (2 * i) , (2 * i - 3) - 1 : (2 * i - 2)])
             A[(2 * i - 1) - 1 : (2 * i) , (2 * i - 3) - 1 : (2 * i - 2)] = S2
 
     B = np.zeros((2 * n_vehicle, n_cav))
