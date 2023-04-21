@@ -1,6 +1,27 @@
 import numpy as np
 from cvxopt import solvers
+import scipy.io as spio
+from cvxopt import matrix
+import pandas as pd
 
+mat = spio.loadmat('data.mat', squeeze_me=True)
+
+Up = np.matrix(mat['Up']);
+Yp = np.matrix(mat['Yp']);
+Uf = np.matrix(mat['Uf']);
+Yf = np.matrix(mat['Yf']);
+Ep = np.matrix(mat['Ep']);
+Ef = np.matrix(mat['Ef']);
+uini = np.matrix(mat['uini']);
+yini = np.matrix(mat['yini']);
+eini = np.matrix(mat['eini']);
+Q = np.matrix(mat['Q']);
+R = np.matrix(mat['R']);
+r = np.matrix(mat['r']);
+lambda_g = np.matrix(mat['lambda_g']);
+lambda_y = np.matrix(mat['lambda_y']);
+u_limit = np.matrix(mat['u_limit']);
+s_limit = np.matrix(mat['s_limit']);
 # =========================================================================
 #                   DeeP-LCC for mixed traffic
 # Input:
@@ -61,25 +82,30 @@ def qp_DeeP_LCC(*args):
     # ------------
     # parameters
     # ------------
-    m        = uini.shape()[0];                # dimension of control input
-    p        = yini.shape()[0];                # dimension of output
-    Tini     = Up.shape()[0] / m;                # horizon of past data
-    N        = Uf.shape()[0] / m;                # horizon of future data
-    T        = Up.shape()[1] + Tini + N - 1;   # time length of pre-collected data
+    m        = uini.shape[0];                # dimension of control input
+    p        = yini.shape[0];                # dimension of output
+    Tini     = Up.shape[0] // m;                # horizon of past data
+    N        = Uf.shape[0] // m;                # horizon of future data
+    T        = Up.shape[1] + Tini + N - 1;   # time length of pre-collected data
 
     # reshape past data into one single trajectory
     # uini = col(u(-Tini),u(-Tini+1),...,u(-1)) (similarly for yini and eini)
-    uini_col = uini.reshape((m * Tini, 1));
-    yini_col = yini.reshape((p * Tini, 1));
-    eini_col = eini.reshape((Tini, 1));
-    r_col    = r.reshape((p * N, 1));
+    #print(yini);
+    #uini_col = uini.reshape(m * Tini, 1);
+    #yini_col = yini.reshape(p * Tini, 1);
+    #eini_col = eini.reshape(Tini, 1);
+    #r_col    = r.reshape(p * N, 1);
+    uini_col = np.reshape(uini, (m * Tini, 1), order="F");
+    yini_col = np.reshape(yini, (p * Tini, 1), order="F");
+    eini_col = np.reshape(eini, (Tini, 1), order="F");
+    r_col    = np.reshape(r, (p * N, 1), order="F");
 
     Q_blk = np.zeros((p * N, p * N));
     R_blk = np.zeros((m * N, m * N));
 
-    for i in range(0, N):
-        Q_blk[(i - 1) * p + 1 : i * p, (i - 1) * p + 1 : i * p] = Q;
-        R_blk[(i - 1) * m + 1 : i * m,(i - 1) * m + 1 : i * m] = R; 
+    for i in range(1, N+1):
+        Q_blk[((i-1)*p+1)-1 : i*p, ((i-1)*p+1)-1 : i*p] = Q;
+        R_blk[((i-1)*m+1)-1 : i*m, ((i-1)*m+1)-1 : i*m] = R; 
 
     # ---------------------
     # cvxopt  - QP solver in Python
@@ -91,36 +117,52 @@ def qp_DeeP_LCC(*args):
     # ---------------------
 
     # Coefficient
-    P = np.dot(Yf.transpose(), Q_blk, Yf) + np.dot(Uf.transpose(), R_blk, Uf) + np.dot(lambda_g, np.eye(T-Tini-N+1)) + np.dot(lambda_y, Yp.transpose(), Yp);
-    q = np.dot(-lambda_y, Yp.transpose(), yini_col);
+    #P = np.dot(Yf.transpose(), Q_blk, Yf) + np.dot(Uf.transpose(), R_blk, Uf) + np.dot(lambda_g, np.eye(T-Tini-N+1)) + np.dot(lambda_y, Yp.transpose(), Yp);
+    P = np.dot(np.dot(Yf.transpose(), Q_blk), Yf);
+    P = P + np.dot(np.dot(Uf.transpose(), R_blk), Uf);
+    P = P + np.eye(T-Tini-N+1) * lambda_g[0, 0];
+    P = P + np.dot(lambda_y[0, 0] * Yp.transpose(), Yp);
+    #print(yini_col);
+    q = np.dot(-1 * lambda_y[0, 0] * Yp.transpose(), yini_col);
 
-    A =  np.vstack(Up, Ep, Ef);
-    b =  np.vstack(uini_col, eini_col, np.zeros((N, 1)));
+    A =  np.vstack((Up, Ep, Ef));
+    b =  np.vstack((uini_col, eini_col, np.zeros((N, 1))));
 
     if constraint_bool: # there exists input/output constraints
-        Sf = [np.zeros((m, p - m)), np.eye(m)];
+        Sf = np.hstack((np.zeros((m, p - m)), np.eye(m)));
         Sf_blk = Sf;
+        #print(np.block([[Sf_blk, np.zeros((Sf.shape[0], Sf_blk.shape[1]))], [np.zeros((Sf_blk.shape[0], Sf.shape[1])), Sf]]))
+        #print(np.block([[Sf_blk, np.zeros((Sf_blk.shape[0], Sf.shape[1]))], [np.zeros((Sf.shape[0], Sf_blk.shape[1])), Sf]]))
         for i in range(2, N+1):
-            Sf_blk = np.block([[Sf_blk, np.zeros((Sf_blk.shape()[1], Sf.shape()[1]))], [np.zeros((Sf.shape()[0], Sf_blk.shape()[1])), Sf]]);
-        G = np.vstack(Uf, -Uf, np.dot(Sf_blk, Yf), np.dot(-Sf_blk, Yf));
-        h = np.vstack(np.dot(np.max(u_limit), np.ones((m * N, 1))), np.dot(-1 * np.min(u_limit),np.ones((m * N, 1))),
-            np.dot(np.max(s_limit), np.ones((m * N, 1))), np.dot(-1 * np.min(s_limit), np.ones((m * N,1))));
+            Sf_blk = np.block([[Sf_blk, np.zeros((Sf_blk.shape[0], Sf.shape[1]))], [np.zeros((Sf.shape[0], Sf_blk.shape[1])), Sf]]);
+        G = np.vstack((Uf, -Uf, np.dot(Sf_blk, Yf), np.dot(-Sf_blk, Yf)));
+        h = np.vstack((np.dot(np.max(u_limit), np.ones((m * N, 1))), np.dot(-1 * np.min(u_limit),np.ones((m * N, 1))), np.dot(np.max(s_limit), np.ones((m * N, 1))), np.dot(-1 * np.min(s_limit), np.ones((m * N,1)))));
     else: 
         G = [];
         h = [];
     
-    P = P.astype(np.float64);
-    q = q.astype(np.float64);
-    G = G.astype(np.float64);
-    h = h.astype(np.float64);
-    A = A.astype(np.float64);
-    b = b.astype(np.float64);
+    #wrong way of converting
+    #P = P.astype(np.float64);
+    #q = q.astype(np.float64);
+    #G = G.astype(np.float64);
+    #h = h.astype(np.float64);
+    #A = A.astype(np.float64);
+    #b = b.astype(np.float64);
+
+    print(q.shape);
+    P = matrix(P, tc = 'd');
+    q = matrix(q, tc = 'd');
+    G = matrix(G, tc = 'd');
+    h = matrix(h, tc = 'd');
+    A = matrix(A, tc = 'd');
+    b = matrix(b, tc = 'd');
+    
     sol = solvers.qp(P, q, G, h, A, b);
 
     # u_opt = sol['x']; FIXME
     # y_opt = sol['primal objective']; FIXME
-    u_opt = np.dot(sol['x'], Uf);
-    y_opt = np.dot(sol['x'], Yf);
+    u_opt = np.dot(Uf, sol['x']);
+    y_opt = np.dot(Yf, sol['x']);
     exitflag = sol['status'];
 
     # exitflags:
@@ -136,5 +178,19 @@ def qp_DeeP_LCC(*args):
         problem_status = -2;
     else: # exitflag == 'dual infeasible'
         problem_status = -3;
+    
+    # Convert the array to a pandas DataFrame
+    df = pd.DataFrame(sol['x'])
 
+    # Specify the filename for the Excel file
+    filename = 'sol.xlsx'
+
+    # Write the DataFrame to the Excel file
+    df.to_excel(filename, index=False)
+
+    #print(sol['x']);
+    #print(y_opt);
+    #print(exitflag);
     return u_opt,y_opt,problem_status;
+
+qp_DeeP_LCC(Up,Yp,Uf,Yf,Ep,Ef,uini,yini,eini,Q,R,r,lambda_g,lambda_y,u_limit,s_limit)
