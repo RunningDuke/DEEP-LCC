@@ -232,8 +232,6 @@ plt.show()
 # --------------------------------------------------------------------------
 FuelConsumption = 0
 VelocityError = 0
-print(int(begin_time // Tstep))
-print(int(total_time // Tstep)+1)
 for i in range(int(begin_time // Tstep), int(total_time // Tstep)+1):
     R = 0.333 + 0.00108 * S[i, 3:, 1] ** 2 + 1.2 * S[i, 3:, 2]
     Fuel = 0.444 + 0.09 * R * S[i, 3:, 1] + 0.054 * max(0, S[i, 3:, 2].all()) ** 2. * S[i, 3:, 1]
