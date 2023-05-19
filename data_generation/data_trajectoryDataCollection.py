@@ -189,6 +189,6 @@ for i_data in range(data_total_number):
     # print(S[:, :, 0])
 
     mat_dict = {"hdv_type": hdv_type, "acel_noise": acel_noise, "Up": Up, "Yp": Yp, "Uf": Uf, "Yf": Yf, "Ep": Ep,
-                "Ef1": Ef, "T": T, "Tini": Tini, "N": N, "ID": ID, "Tstep": Tstep, "v_star": v_star}
+                "Ef": Ef, "T": T, "Tini": Tini, "N": N, "ID": ID, "Tstep": Tstep, "v_star": v_star}
     mat_path = "./_data/trajectory_data_collection/data" + data_str + "_" + str(i_data) + "_noiseLevel_" + str(acel_noise) + ".mat"
     savemat(mat_path, mat_dict)
