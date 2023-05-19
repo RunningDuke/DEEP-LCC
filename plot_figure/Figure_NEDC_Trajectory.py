@@ -1,6 +1,4 @@
-
 from scipy.io import loadmat
-from scipy.io import savemat
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9,13 +7,13 @@ import matplotlib.pyplot as plt
 '''
 
 # Data set
-data_str        = '2' # 1. random ovm  2. manual ovm  3. homogeneous ovm
+data_str        = '2'  # 1. random ovm  2. manual ovm  3. homogeneous ovm
 # Mix or not
-mix             = 1  # 0. all HDVs; 1. mix
+mix             = 1    # 0. all HDVs; 1. mix
 # Type of the controller
-controller_type = 2  # 1. DeeP-LCC  2. MPC
+controller_type = 2    # 1. DeeP-LCC  2. MPC
 # Type for HDV car-following model
-hdv_type        = 1  # 1. OVM   2. IDM
+hdv_type        = 1    # 1. OVM   2. IDM
 # Uncertainty for HDV behavior
 acel_noise      = 0.1  # A white noise signal on HDV's original acceleration
 
@@ -30,7 +28,7 @@ adaption_time       = 20  # Time for the CAVs to adjust to their desired state
 total_time          = int(initialization_time + adaption_time + end_time)  # Total Simulation Time
 begin_time          = initialization_time + adaption_time
 
-weight_v     = 1  # weight coefficient for velocity error
+weight_v     = 1    # weight coefficient for velocity error
 weight_s     = 0.5  # weight coefficient for spacing error
 weight_u     = 0.1  # weight coefficient for control input
 
@@ -82,7 +80,7 @@ line_width  = 1.5
 
 # Head vehicle trajectory
 time_point = [60,88,121,176,206]  # For Trajectory V1
-# time_point = [60,88,121,166,196];   % For Trajectory V2
+# time_point = [60,88,121,166,196]   # For Trajectory V2
 time_scale = [i/100-(initialization_time + adaption_time) for i in range(begin_time*100, total_time*100+1, int(Tstep*100))]
 
 plt.plot(time_scale, S[int(begin_time // Tstep): int(total_time // Tstep)+1, 0, 1], "k")
@@ -100,43 +98,27 @@ plt.grid()
 plt.savefig("./1.png")
 plt.show()
 
-# print(gcf, '.\figs\NEDC_HeadVehicleTrajectory', '-painters', '-depsc2', '-r300')
+# print('.\figs\NEDC_HeadVehicleTrajectory'+'-painters'+'-depsc2'+'-r300')
 
 # Velocity
-# for time_i = 1:4
-# begin_time = time_point(time_i);
-# total_time = time_point(time_i + 1);
+# for time_i in range(4):
+#     begin_time = time_point[time_i]
+#     total_time = time_point[time_i + 1]
 # figure;
-# plot(begin_time: Tstep:total_time, S(begin_time / Tstep: round(
-#     total_time / Tstep), 1, 2), 'Color', color_gray, 'linewidth', line_width); hold on;
-# for i = 1:n_vehicle
-# if ID(i) == 1
-    # plot(begin_time: Tstep:total_time, S(begin_time / Tstep: round(
-    #    total_time / Tstep), i + 1, 2), 'Color', color_red, 'linewidth', line_width); hold on; % line for velocity of CAVs
-# else
-# plot(begin_time: Tstep:total_time, S(begin_time / Tstep: round(
-#     total_time / Tstep), i + 1, 2), 'Color', color_blue, 'linewidth', line_width); hold on; % line for velocity of HDVs
-#  end
-# end
-# grid on;
-# set(gca, 'TickLabelInterpreter', 'latex', 'fontsize', total_size);
-# set(gca, 'XLim', [begin_time total_time]);
-#
-# xl = xlabel('$t$ [$\mathrm{s}$]', 'fontsize', label_size, 'Interpreter', 'latex', 'Color', 'k');
-# yl = ylabel('Velocity [$\mathrm{m/s}$]', 'fontsize', label_size, 'Interpreter', 'latex', 'Color', 'k');
-#
-# set(gcf, 'Position', [250 150 400 300]);
-# fig = gcf;
-# fig.PaperPositionMode = 'auto';
-#
-# end
+# plt.plot(list(range(int(begin_time), int(total_time), int(Tstep))), S[int(begin_time // Tstep(int(total_time // Tstep) + 1, 0, 1], "c")
+
+# for i in range(n_vehicle):
+#     if ID(i) == 1:
+    #     plt.plot(list(range(int(begin_time), int(total_time), int(Tstep))), S[int(begin_time // Tstep(int(total_time // Tstep) + 1, 0, 1], "r")   # line for velocity of CAVs
+# else:
+#     plt.plot(list(range(int(begin_time), int(total_time), int(Tstep))), S[int(begin_time // Tstep(int(total_time // Tstep) + 1, 0, 1], "r")  # line for velocity of HDVs
+# plt.xlim([begin_time, total_time])
+# plt.xlabel('$t$ [$\mathrm{s}$]', 'k')
+# plt.ylabel('Velocity [$\mathrm{m/s}$]', 'k')
 
 total_time = initialization_time + adaption_time + end_time # Total Simulation Time
 begin_time = initialization_time + adaption_time
 
-
-# h = axes('position', [0 0 1 1]);
-# axis(h);
 plt.plot(time_scale, S[int(begin_time // Tstep): int(total_time // Tstep)+1, 0, 1], "k")
 for i in range(n_vehicle):
     if ID[i] == 0:
@@ -161,55 +143,28 @@ plt.grid()
 plt.savefig("./2.png")
 plt.show()
 
-# % h1 = axes;
-# % axis(h1);
-# % begin_time_1 = 65;
-# % total_time_1 = 75;
-# %
-# % plot(begin_time_1: Tstep:total_time_1, S(begin_time_1 / Tstep: round(
-#     total_time_1 / Tstep), 1, 2), 'Color', color_black, 'linewidth', line_width); hold
-# on; % line
-# for velocity of HDVs
-# % for i = 1:n_vehicle
-# % if ID(i) == 0
-#     % plot(begin_time_1: Tstep:total_time_1, S(begin_time_1 / Tstep: round(
-#         total_time_1 / Tstep), i + 1, 2), 'Color', color_gray, 'linewidth', line_width / 2); hold
-#     on; % line
-#     for velocity of HDVs
-# % end
-# % end
-# % id_cav = 1;
-# % for i = 1:n_vehicle
-# % if ID(i) == 1
-#     % if id_cav == 1
-#         % plot(begin_time_1: Tstep:total_time_1, S(begin_time_1 / Tstep: round(
-#         total_time_1 / Tstep), i + 1, 2), 'Color', color_red, 'linewidth', line_width); hold
-#     on; % line
-#     for velocity of CAVs
-# % id_cav = id_cav + 1;
-# % elseif
-# id_cav == 2
-# % plot(begin_time_1: Tstep:total_time_1, S(begin_time_1 / Tstep: round(
-#     total_time_1 / Tstep), i + 1, 2), 'Color', color_blue, 'linewidth', line_width); hold
-# on; % line
-# for velocity of CAVs
-# % end
-# % end
-# % end
-# %
-# % set(gca, 'xticklabel', [])
-# % set(gca, 'yticklabel', [])
-# % set(gca, 'YLim', [13 18]);
-# % h1.Position = [0.15 0.6 0.15 0.25];
+# begin_time_1 = 65
+# total_time_1 = 75
 #
-# % if mix
-#     % print(gcf, ['.\figs\NEDC_VelocityProfile_Controller_', num2str(controller_type)], '-painters', '-depsc2',
-#             '-r300');
-# % else
-# % print(gcf, '.\figs\NEDC_VelocityProfile_AllHDVs', '-painters', '-depsc2', '-r300');
-# % end
-
-
+# plt.plot(list(range(begin_time_1, total_time_1, Tstep)), S[int(begin_time_1 // Tstep): int(total_time_1 // Tstep) + 1, 0, 1], "k")  # line for velocity of HDVs
+# for i in range(n_vehicle):
+#     if ID[i] == 0:
+#         plt.plot(list(range(begin_time_1, total_time_1, Tstep)), S[int(begin_time_1 // Tstep): int(total_time_1 // Tstep) + 1, i+1, 1], "c")  # line for velocity of HDVs
+# id_cav = 1;
+# for i in range(n_vehicle):
+#     if ID[i] == 1:
+#         if id_cav == 1:
+#             plt.plot(list(range(begin_time_1, total_time_1, Tstep)), S[int(begin_time_1 // Tstep): int(total_time_1 // Tstep) + 1, i+1, 1], "r")  # line for velocity of CAVs
+# id_cav = id_cav + 1
+# elif:
+#     id_cav == 2
+#     plt.plot(list(range(begin_time_1, total_time_1, Tstep)), S[int(begin_time_1 // Tstep): int(total_time_1 // Tstep) + 1, i+1, 1], "b")  # line for velocity of CAVs
+# plt.ylim([13, 18])
+#
+# if mix:
+#     print('.\figs\NEDC_VelocityProfile_Controller_'+ str(controller_type) + '-painters' + '-depsc2' + '-r300')
+# else:
+#     print('.\figs\NEDC_VelocityProfile_AllHDVs' + '-painters' + '-depsc2' + '-r300')
 
 
 # Spacing
@@ -232,12 +187,11 @@ plt.grid()
 plt.savefig("./3.png")
 plt.show()
 
-# % if mix
-#     % print(gcf, ['.\figs\NGSIM_SpacingProfile_Controller_', num2str(controller_type)], '-painters', '-depsc2',
-#             '-r300')
-# % else
-# % print(gcf, '.\figs\NGSIM_SpacingProfile_AllHDVs', '-painters', '-depsc2', '-r300');
-# % end
+# if mix:
+#   print('.\figs\NGSIM_SpacingProfile_Controller_'+str(controller_type)+'-painters'+'-depsc2'+'-r300')
+# else:
+#   print('.\figs\NGSIM_SpacingProfile_AllHDVs'+'-painters'+'-depsc2'+'-r300')
+
 
 
 
@@ -289,6 +243,6 @@ for i in range(int(begin_time // Tstep), int(total_time // Tstep)+1):
 
 VelocityError = VelocityError / n_vehicle / ((total_time - begin_time) / Tstep)
 
-print('Fuel comsumption:   %4.2f \n', FuelConsumption)
-print('Velocity error:   %4.4f \n', VelocityError)
+print('Fuel comsumption:   ' + str(FuelConsumption))
+print('Velocity error:   ' + str(VelocityError))
 
