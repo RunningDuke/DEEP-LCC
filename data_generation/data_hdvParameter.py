@@ -6,7 +6,7 @@ from scipy.io import savemat
        Generate heterogeneous HDV paramters
 '''
 
-hdv_type = 1
+hdv_type = 2
 v_star = 15
 
 '''
@@ -25,7 +25,7 @@ v_max = 30
 s_star = math.acos(1 - v_star / v_max * 2) / math.pi * (s_go - s_st) + s_st  # ./
 
 hdv_parameter = {"type": hdv_type, "alpha": alpha, "beta": beta, "s_st": s_st, "s_go": s_go, "v_max": v_max, "s_star": s_star}
-savemat('hdv_ovm_homogeneous.mat', hdv_parameter)
+savemat('./_data/hdv_ovm_homogeneous.mat', hdv_parameter)
 
 if hdv_type == 1:
     # Driver Model: OVM
@@ -50,7 +50,7 @@ if hdv_type == 1:
     s_go[5] = 35
 
     # Equilibrium spacing
-    s_star = math.acos(1 - v_star / v_max * 2) / math.pi * (s_go - s_st) + s_st
+    s_star = np.dot((math.acos(1 - v_star / v_max * 2) / math.pi), (s_go - s_st)) + s_st
 
 elif hdv_type == 2:
     # Driver Model: IDM
@@ -62,15 +62,17 @@ elif hdv_type == 2:
     s_st = 5
 
     # Equilibrium spacing
-    s_star = (s_st + T_gap @ v_star) / math.sqrt(1 - (v_star / v_max) ** delta)
+    s_star = (s_st + T_gap * v_star) / math.sqrt(1 - (v_star / v_max) ** delta)
 
 if hdv_type == 1:
     hdv_parameter = {"type": hdv_type, "alpha": alpha, "beta": beta, "s_st": s_st, "s_go": s_go, "v_max": v_max,
                      "s_star": s_star}
-    savemat('hdv_ovm.mat', hdv_parameter)
+    hdv_parameter_dict = {"hdv_parameter": hdv_parameter}
+    savemat('./_data/hdv_ovm.mat', hdv_parameter_dict)
 elif hdv_type == 2:
     hdv_parameter = {"type": hdv_type, "v_max": v_max, "T_gap": T_gap, "a": a, "b": b, "delta": delta, "s_st": s_st, "s_star": s_star}
-    savemat('hdv_idm.mat', hdv_parameter)
+    hdv_parameter_dict = {"hdv_parameter": hdv_parameter}
+    savemat('./_data/hdv_idm.mat', hdv_parameter_dict)
 
 
 
