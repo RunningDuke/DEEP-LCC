@@ -10,7 +10,6 @@ from _fcn.qp_MPC import qp_MPC
 import math
 from ttictoc import tic,toc
 
-
 '''
                                NEDC Simulation
  Scenario:
@@ -27,9 +26,6 @@ from ttictoc import tic,toc
 
 # Scenario Setup
 # whether traffic flow is mixed
-
-# Set trajectory_id = "1"   test
-#trajectory_id = "1"
 
 mix                 = 1                    # 0. all HDVs; 1. there exist CAVs
 ID                  = [0,0,1,0,0,1,0,0]    # ID of vehicle types
@@ -192,12 +188,11 @@ for k in range(int(initialization_time/Tstep)):
     v_star = head_vehicle_trajectory["vel"][0]
     # update states in DeeP-LCC
     y[:, k]          = measure_mixed_traffic(S[k, 1:, 1], S[k,:, 0], ID, v_star, s_star, measure_type).reshape((10,))
-    #print(e)
     e[0][k]             = S[k, 0, 1] - v_star
     u[:, k]          = S[k, pos_cav, 2].reshape((2,))
 
 # update past data in control process
-uini                = u[:, k-Tini:k]            # k???
+uini                = u[:, k-Tini:k]
 yini                = y[:, k-Tini:k]
 eini                = S[k-Tini:k,0,1] - v_star
 
@@ -259,8 +254,7 @@ for k in range(int(initialization_time/Tstep), total_time_step-1):
     yini = y[:, k - Tini + 1: k+1]
     eini = S[k - Tini + 1:k+1, 0, 1] - v_star
 
-    # 改一下%号！
-    print('Current simulation time: %.2f seconds (%.2f%%) \n',k*Tstep,(k*Tstep-initialization_time)/(total_time-initialization_time)*100.0)
+    print('Current simulation time:' + str(k*Tstep) + 'seconds ' + str((k*Tstep-initialization_time)/(total_time-initialization_time)*100.0) + "%")
 
 k_end = k+1
 y[:,k_end] = measure_mixed_traffic(S[k_end,1:,1],S[k_end,:,0],ID,v_star,s_star,measure_type)
