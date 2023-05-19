@@ -16,18 +16,18 @@ import numpy as np
 # =========================================================================
 
 def measure_mixed_traffic (vel,pos,ID,v_star,s_star,type) :
-    pos_cav = np.where(ID == 1)[1];
+    # pos_cav = np.where(ID == 1)[1]
+    pos_cav = np.argwhere(np.ravel(ID) == 1)
 
-    match type:
-        case 1:
-            y= (vel - v_star).transpose();
-        case 2:
-            spacing = pos[:, 0:-1] - pos[:, 1:];
-            y = np.vstack(((vel - v_star).transpose(), (spacing - s_star).transpose()));
-        case 3:
-            spacing = pos[:, 0:-1] - pos[:, 1:];
-            y = np.vstack(((vel - v_star).transpose(), (spacing[:, pos_cav] - s_star).transpose()));
-    return y;
+    if type == 1:
+            y= np.transpose([vel - v_star])
+    elif type == 2:
+            spacing = pos[0:-1] - pos[1:]
+            y = np.vstack((np.transpose([vel - v_star]), np.transpose([spacing - s_star])))
+    elif type == 3:
+            spacing = pos[0:-1] - pos[1:]
+            y = np.vstack(((vel - v_star).reshape((8,1)), spacing[pos_cav] - s_star))
+    return y
     
 
 # Testing
