@@ -4,7 +4,7 @@ import cvxopt
 from cvxopt import solvers
 from traffic_linear_model import traffic_linear_model
 
-def qp_MPC(ID, Ts, hdv_type, measure_type, v_star, uini, yini, N, Q, R, r, u_limit, s_limit, previous_u_opt):
+def qp_MPC(*args):
     '''
             MPC for mixed traffic
     Input:
@@ -40,8 +40,23 @@ def qp_MPC(ID, Ts, hdv_type, measure_type, v_star, uini, yini, N, Q, R, r, u_lim
       Author: Jiawei Wang, Yang Zheng, Qing Xu and Keqiang Li
     '''
 
+    ID = args[0]
+    Ts = args[1]
+    hdv_type = args[2]
+    measure_type = args[3]
+    v_star = args[4]
+    uini = args[5]
+    yini = args[6]
+    N = args[7]
+    Q = args[8]
+    R = args[9]
+    r = args[10]
+    u_limit = args[11]
+    s_limit = args[12]
+    if len(args) > 13:
+        previous_u_opt = args[13]
+
     # Calculate via Linear model
-    args = [ID, Ts, hdv_type, measure_type, v_star, uini, yini, N, Q, R, r, u_limit, s_limit, previous_u_opt]
     if len(args) < 12:       # whether there exists input/output constraints
         constraint_bool = 0
     else:
