@@ -257,7 +257,7 @@ for k in range(int(initialization_time/Tstep), total_time_step-1):
     print('Current simulation time:' + str(k*Tstep) + 'seconds ' + str((k*Tstep-initialization_time)/(total_time-initialization_time)*100.0) + "%")
 
 k_end = k+1
-y[:,k_end] = measure_mixed_traffic(S[k_end,1:,1],S[k_end,:,0],ID,v_star,s_star,measure_type)
+y[:,k_end] = measure_mixed_traffic(S[k_end,1:,1],S[k_end,:,0],ID,v_star,s_star,measure_type).reshape((10,))
 
 toc()
 
@@ -265,7 +265,7 @@ toc()
 if mix:
     if controller_type == 1:
         save_data = {"hdv_type": hdv_type, "acel_noise": acel_noise, "S": S, "T": T, "Tini": Tini, "N": N, "ID": ID, "Tstep": Tstep, "v_star": v_star}
-        save_name = '../_data/simulation_data/DeeP_LCC/nedc_simulation/simulation_data'+ data_str +'_'+str(i_data)+'_modified_v'+str(trajectory_id)+'_noiseLevel_'+str(acel_noise)+'_hdvType_'+str(hdv_type)+'_lambdaG_'+str(lambda_g)+'_lambdaY_'+str(lambda_y)+'.mat'
+        save_name = '../_data/simulation_data/DeeP_LCC/nedc_simulation/simulation_data'+ data_str +'_'+str(i_data)+'_modified_v'+str(trajectory_id)+'_noiseLevel_'+str(acel_noise)+'_hdvType_'+str(hdv_type)+'_lambdaG_'+str(lambda_g)+'_lambdaY_'+str(int(lambda_y))+'.mat'
         savemat(save_name, save_data)
     elif controller_type == 2:
         save_data = {"hdv_type": hdv_type, "acel_noise": acel_noise, "S": S, "T": T, "Tini": Tini, "N": N, "ID": ID,
