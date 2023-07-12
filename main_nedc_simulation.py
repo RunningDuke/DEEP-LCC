@@ -163,7 +163,7 @@ pre_data = {"Ef": pre_data_tmp["Ef"],
 # S(time,vehicle id,state variable), in state variable: 1. position; 2. velocity; 3. acceleration
 S                 = np.zeros((total_time_step,n_vehicle+1,3))
 S[0, 0, 0]        = 0
-for i in range(1, n_vehicle):
+for i in range(1, n_vehicle + 1):
     S[0, i, 0]    = S[0, i-1, 0] - hdv_parameter["s_star"][i-1]
 S[0,:,1]          = (v_star * np.ones((n_vehicle+1,1))).T
 
@@ -173,7 +173,7 @@ r                 = np.zeros((p_ctr,total_time_step+N))
 # Experiment starts here
 tic()
 # Initialization: all the vehicles use the HDV model
-for k in range(int(initialization_time/Tstep)):
+for k in range(int(initialization_time/Tstep) - 1):
     # calculate acceleration
     acel = HDV_dynamics(S[k,:,:], hdv_parameter)-acel_noise + 2 * acel_noise * np.random.rand(n_vehicle, 1)
     S[k, 0, 2]  = 0
@@ -198,7 +198,7 @@ eini                = S[k-Tini:k,0,1] - v_star
 
 
 # The CAVs start to use DeeP-LCC
-for k in range(int(initialization_time/Tstep), total_time_step-1):
+for k in range(int(initialization_time/Tstep) - 1, total_time_step - 1):
     # calculate acceleration for the HDVs
     acel = HDV_dynamics(S[k,:,:], hdv_parameter)-acel_noise + 2 * acel_noise * np.random.rand(n_vehicle, 1)
     S[k, 1:, 2]    = acel.reshape((8,))
@@ -248,7 +248,7 @@ for k in range(int(initialization_time/Tstep), total_time_step-1):
     # update past data in control process
     uini = u[:, k - Tini + 1: k+1]
     # the output needs to be re-calculated since the equilibrium has been updated
-    for k_past in range(k-Tini+1, k+1):
+    for k_past in range(k-Tini, k):
         y[:, k_past] = measure_mixed_traffic(S[k_past, 1:, 1], S[k_past,:, 0], ID, v_star, s_star, measure_type).reshape((10,))
         e[0][k_past] = S[k_past, 0, 1] - v_star
     yini = y[:, k - Tini + 1: k+1]
