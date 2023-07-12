@@ -273,7 +273,7 @@ for k in range(Tini - 1, total_time_step - 1):
     # update past data in control process
     uini = u[:, k - Tini + 1: k+1]
     # the output needs to be re-calculated since the equilibrium has been updated
-    for k_past in range(k-Tini+1, k+1):
+    for k_past in range(k-Tini+1, k):
         y[:, k_past] = measure_mixed_traffic(S[k_past, 1:, 1], S[k_past,:, 0], ID, v_star, s_star, measure_type).reshape((10,))
         e[0][k_past] = S[k_past, 0, 1] - v_star
     yini = y[:, k - Tini + 1: k+1] 
